@@ -11,12 +11,20 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 [image1]: ./examples/car_not_car.png
-[image2]: ./examples/HOG_example.jpg
+[image2]: ./images/hog.png
 [image3]: ./examples/sliding_windows.jpg
 [image4]: ./examples/sliding_window.jpg
 [image5]: ./examples/bboxes_and_heat.png
 [image6]: ./examples/labels_map.png
 [image7]: ./examples/output_bboxes.png
+[image8]: ./images/hog1.png
+[image9]: ./images/hog2.png
+[image10]: ./images/hog3.png
+[image11]: ./images/yuv.png
+[image12]: ./images/detect1.png
+[image13]: ./images/detect2.png
+[image14]: ./images/heat1.png
+[image15]: ./images/heat2.png
 [video1]: ./project_video.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
@@ -50,6 +58,13 @@ pix_per_cell = 8 # HOG pixels per cell
 cell_per_block = 2 # HOG cells per block
 hog_channel = "ALL" 
 ```
+Original image and corresponding YUV converted image
+![alt text][image11]
+
+The HOG features for the three channels of YUV image above. These features are then trained over SVM
+![alt text][image8]
+![alt text][image9]
+![alt text][image10]
 
 #### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
@@ -74,7 +89,8 @@ The decision of using 70% overlap is based on the fact that it gave better resul
 
 Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
 
-![alt text][image4]
+![alt text][image12]
+![alt text][image13]
 ---
 
 ### Video Implementation
@@ -85,13 +101,18 @@ Here's a [link to my video result](https://www.youtube.com/watch?v=6lg39nTRLCY)
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
-I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
+I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I 
+constructed bounding boxes to cover the area of each blob detected. The part above is mostly done as explained in the video lectures.
+
+**The part where I've made siginicant changes are in the video pipeline to remove false positives that spuriously occur**. The algorithm is as follows
+
 
 Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
 
-### Here are six frames and their corresponding heatmaps:
+### Here are heat map frames and their corresponding heatmaps:
 
-![alt text][image5]
+![alt text][image14]
+![alt text][image15]
 
 ### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
 ![alt text][image6]
