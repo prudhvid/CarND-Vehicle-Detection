@@ -25,6 +25,7 @@ The goals / steps of this project are the following:
 [image13]: ./images/detect2.png
 [image14]: ./images/heat1.png
 [image15]: ./images/heat2.png
+[image16]: ./images/final.png
 [video1]: ./project_video.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
@@ -106,6 +107,40 @@ constructed bounding boxes to cover the area of each blob detected. The part abo
 
 **The part where I've made siginicant changes are in the video pipeline to remove false positives that spuriously occur**. The algorithm is as follows
 
+```python
+# bboxes are list of all distinct possible rectangles that can be cars and bbox is the current rectangle from heatmap
+for (ind,(box, count)) in enumerate(bboxes):
+    mid = [(box[0][0] + box[1][0])/2, (box[0][1] + box[1][1])/2]
+    bmid = [(bbox[0][0] + bbox[1][0])/2, (bbox[0][1] + bbox[1][1])/2]
+    
+    # If the distance between the exisitng box and the current heatmap is less than 300 then we consider it to be a part of the exisiting box
+    if abs(mid[0] - bmid[0]) + abs(mid[1] - bmid[1]) < 300:
+        if area(bbox) > area(maxArea[ind]):
+            maxArea[ind] = bbox
+        # increase the weight of this bbox
+        bboxes[ind][1] += 1
+        break
+else:
+    maxArea[len(bboxes)] = bbox 
+    bboxes.append([bbox,1])
+
+for (ind,(box, count)) in enumerate(bboxes):
+    # If the bbox has no heatmap in this frame, decrease its weight
+    if area(maxArea[ind]) is 0 and bboxes[ind][1] >= 2.0:
+        bboxes[ind][1] -= 2.
+
+for (ind, (bbox, count)) in enumerate(bboxes):
+    fbox = maxArea[ind] if area(maxArea[ind]) > area(bbox) else bbox
+    if (area(maxArea[ind]) > bboxes[ind][1]) or (area(maxArea[ind]) > 2500):
+        bboxes[ind][0] = maxArea[ind]
+#         area check for noise reduction if any
+    # Draw those boxes which have atleast 15 weight and has an area of atleast 1500 pixels
+    if (count > 15) and area(fbox) > 1500:
+        cv2.rectangle(img, fbox[0], fbox[1], (255,0,0), 8)
+# Return the image
+return img
+```
+
 
 Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
 
@@ -118,7 +153,7 @@ Here's an example result showing the heatmap from a series of frames of video, t
 ![alt text][image6]
 
 ### Here the resulting bounding boxes are drawn onto the last frame in the series:
-![alt text][image7]
+![alt text][image16]
 
 
 
